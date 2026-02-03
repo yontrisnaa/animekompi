@@ -7,8 +7,6 @@ Build a complete anime streaming website with the following specifications:
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: Shadcn UI
-- **Database**: SQLite with Prisma ORM
-- **Authentication**: bcryptjs for password hashing
 
 ## API Integration
 **Base URL**: `https://zeldvorik.ru/animekompi/endpoints`
@@ -100,7 +98,7 @@ export async function getBatch(page: number = 1): Promise<BatchResponse> {
 - Video player with iframe embed
 - Multiple streaming server options
 - Download links with quality badges (480p, 720p, etc.)
-- **Navigation buttons** (Previous/Episode List/Next) positioned **directly below video**, centered
+- **Navigation buttons** (Previous/Episode List/Next) positioned **directly below video**, **centered**
 - Breadcrumb navigation
 - Episode navigation with prev/next detection
 
@@ -121,34 +119,9 @@ export async function getBatch(page: number = 1): Promise<BatchResponse> {
 - Deduplication logic
 - Empty state handling
 
-### 7. Admin Panel
-- **Login page** (`/admin/login`)
-  - Default credentials: admin / admin123
-  - Session management with localStorage
-  
-- **Admin dashboard** (`/admin`)
-  - Protected route (requires login)
-  - **Site Settings**:
-    - Site Name
-    - Site Description (tagline)
-  - **SEO Settings**:
-    - Google Search Console verification code
-    - Bing Webmaster verification code
-    - Yandex Webmaster verification code
-    - Google Analytics ID
-    - Facebook Pixel ID
-    - Meta Description
-    - Meta Keywords
-    - Open Graph Image URL
-    - Twitter Handle
-  - **Password Management**:
-    - Change password modal
-    - Current password validation
-    - Confirm new password
-  - Logout functionality
-
-### 8. SEO Optimization
-- Dynamic metadata per page
+### 7. SEO Optimization
+- Static metadata in root layout
+- Dynamic metadata per page using generateMetadata()
 - Open Graph tags for social sharing
 - Twitter Card tags
 - JSON-LD structured data for anime (TVSeries schema)
@@ -176,34 +149,6 @@ export async function getBatch(page: number = 1): Promise<BatchResponse> {
 ### Navigation
 - Sticky navbar with logo, menu items, and search
 - Footer with copyright and Histats analytics script
-
-## Database Schema (Prisma)
-
-```prisma
-model SeoSettings {
-  id                    Int      @id @default(autoincrement())
-  siteName              String   @default("AnimeKompi")
-  siteDescription       String   @default("Nonton Anime Subtitle Indonesia")
-  googleVerification    String   @default("")
-  bingVerification      String   @default("")
-  yandexVerification    String   @default("")
-  googleAnalyticsId     String   @default("")
-  facebookPixelId       String   @default("")
-  metaDescription       String   @default("Nonton anime subtitle Indonesia terbaru dan terlengkap secara gratis")
-  metaKeywords          String   @default("anime, nonton anime, anime sub indo")
-  ogImage               String   @default("/og-image.jpg")
-  twitterHandle         String   @default("@animekompi")
-  updatedAt             DateTime @updatedAt
-}
-
-model AdminUser {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
 
 ## Key Implementation Details
 
@@ -235,17 +180,6 @@ export function isEpisodeSlug(slug: string): boolean {
 - Desktop: > 1024px
 - Use Tailwind breakpoints: sm, md, lg, xl
 
-### 5. Admin Authentication
-- Hash passwords with bcrypt (10 rounds)
-- Store session in localStorage
-- Protect admin routes with useEffect check
-- Redirect to login if not authenticated
-
-### 6. SEO Dynamic Loading
-- Fetch settings from database in layout.tsx
-- Use generateMetadata() for dynamic pages
-- Apply settings globally via root layout
-
 ## File Structure
 ```
 app/
@@ -256,15 +190,8 @@ app/
 ├── schedule/page.tsx
 ├── batch/page.tsx
 ├── search/page.tsx
-├── admin/
-│   ├── page.tsx (dashboard)
-│   └── login/page.tsx
-└── api/
-    └── admin/
-        ├── seo/route.ts
-        ├── login/route.ts
-        ├── change-password/route.ts
-        └── init/route.ts
+├── robots.ts
+└── sitemap.ts
 
 components/
 ├── navbar.tsx
@@ -280,12 +207,7 @@ components/
 lib/
 ├── api.ts (API client functions)
 ├── types.ts (TypeScript interfaces)
-├── prisma.ts (Prisma client)
-├── seo.ts (SEO helper functions)
 └── utils-episode.ts (Episode utilities)
-
-prisma/
-└── schema.prisma
 ```
 
 ## Analytics Integration
@@ -308,46 +230,34 @@ hs.src = ('//s10.histats.com/js15_as.js');
 
 1. Create Next.js project:
 ```bash
-npx create-next-app@latest anime-website --typescript --tailwind --app
-cd anime-website
+npx create-next-app@latest animekompi --typescript --tailwind --app
+cd animekompi
 ```
 
 2. Install dependencies:
 ```bash
-npm install @prisma/client@5.22.0 prisma@5.22.0 bcryptjs
-npm install -D @types/bcryptjs
 npx shadcn-ui@latest init
-npx shadcn-ui@latest add button card
+npx shadcn-ui@latest add button card input
 npm install lucide-react
 ```
 
-3. Setup Prisma:
-```bash
-npx prisma init --datasource-provider sqlite
-npx prisma generate
-npx prisma db push
-```
-
-4. Initialize admin user:
-Visit `/api/admin/init` to create default admin (admin/admin123)
-
-5. Run development server:
+3. Run development server:
 ```bash
 npm run dev
 ```
 
 ## Important Notes
 
-1. **Navigation Button Position**: Must be directly below video embed, before title and other sections
+1. **Navigation Button Position**: Must be directly below video embed, centered, before title and other sections
 2. **Deduplication**: Essential for infinite scroll to prevent duplicates
 3. **Smart Routing**: Hero slider must detect episode vs anime slugs
 4. **Mobile Layout**: Detail page must use horizontal card on mobile
 5. **Schedule Sorting**: Must start from current day with "Today" badge
-6. **Admin Security**: Change default password immediately after first login
-7. **SEO Settings**: All metadata should be dynamic from database
-8. **Episode List**: Must include search functionality
-9. **Responsive Design**: Test on mobile, tablet, and desktop
-10. **Loading States**: Show skeletons while data is loading
+6. **Episode List**: Must include search functionality
+7. **Responsive Design**: Test on mobile, tablet, and desktop
+8. **Loading States**: Show skeletons while data is loading
+9. **SEO**: Hardcoded in layout.tsx, dynamic per page using generateMetadata()
+10. **Vercel Deployment**: No database needed, fully serverless
 
 ## Testing Checklist
 
@@ -358,25 +268,27 @@ npm run dev
 - [ ] Schedule starts from current day
 - [ ] Batch page infinite scroll works without duplicates
 - [ ] Search returns results with infinite scroll
-- [ ] Admin login works with default credentials
-- [ ] Admin can change password
-- [ ] Admin can update SEO settings
 - [ ] SEO metadata appears in page source
 - [ ] robots.txt and sitemap.xml are accessible
 - [ ] All pages are responsive
 - [ ] No console errors
+- [ ] Deploys successfully to Vercel
 
 ## Success Criteria
 
 ✅ All pages render correctly
 ✅ Infinite scroll works on all applicable pages
-✅ Admin panel is functional and secure
 ✅ SEO is properly implemented
 ✅ Mobile responsive design works perfectly
 ✅ Navigation and routing work as expected
 ✅ No duplicate data in infinite scroll
 ✅ Analytics tracking is active
+✅ Successfully deploys to Vercel
 
 ---
 
 **Build this exactly as specified and you will have a production-ready anime streaming website!**
+
+## Live Demo
+- **Production**: https://animekompi.vercel.app
+- **GitHub**: https://github.com/yontrisnaa/animekompi
