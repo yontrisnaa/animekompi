@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model SeoSettings {
+  id                    Int      @id @default(autoincrement())
+  siteName              String   @default("AnimeKompi")
+  siteDescription       String   @default("Nonton Anime Subtitle Indonesia")
+  googleVerification    String   @default("")
+  bingVerification      String   @default("")
+  yandexVerification    String   @default("")
+  googleAnalyticsId     String   @default("")
+  facebookPixelId       String   @default("")
+  metaDescription       String   @default("Nonton anime subtitle Indonesia terbaru dan terlengkap secara gratis")
+  metaKeywords          String   @default("anime, nonton anime, anime sub indo")
+  ogImage               String   @default("/og-image.jpg")
+  twitterHandle         String   @default("@animekompi")
+  updatedAt             DateTime @updatedAt
+}
+
+model AdminUser {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
