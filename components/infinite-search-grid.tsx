@@ -8,14 +8,15 @@ import type { AnimeItem } from '@/lib/types';
 interface InfiniteSearchGridProps {
     initialAnime: AnimeItem[];
     initialPage: number;
+    totalPages: number;
     query: string;
 }
 
-export function InfiniteSearchGrid({ initialAnime, initialPage, query }: InfiniteSearchGridProps) {
+export function InfiniteSearchGrid({ initialAnime, initialPage, totalPages, query }: InfiniteSearchGridProps) {
     const [animeList, setAnimeList] = useState<AnimeItem[]>(initialAnime);
     const [page, setPage] = useState(initialPage);
     const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
+    const [hasMore, setHasMore] = useState(initialPage < totalPages);
     const observerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -49,16 +50,13 @@ export function InfiniteSearchGrid({ initialAnime, initialPage, query }: Infinit
                 setAnimeList((prev) => {
                     const existingSlugs = new Set(prev.map(a => a.slug));
                     const uniqueNewAnime = newAnime.filter(a => !existingSlugs.has(a.slug));
-
-                    // If no new unique anime, stop loading more
-                    if (uniqueNewAnime.length === 0) {
-                        setHasMore(false);
-                        return prev;
-                    }
-
                     return [...prev, ...uniqueNewAnime];
                 });
                 setPage(nextPage);
+
+                if (nextPage >= totalPages) {
+                    setHasMore(false);
+                }
             }
         } catch (error) {
             console.error('Failed to load more search results:', error);

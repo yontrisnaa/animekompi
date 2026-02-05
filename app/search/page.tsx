@@ -21,7 +21,12 @@ async function SearchContent({ query }: { query: string }) {
             </h1>
 
             {results.length > 0 ? (
-                <InfiniteSearchGrid initialAnime={results} initialPage={1} query={query} />
+                <InfiniteSearchGrid
+                    initialAnime={results}
+                    initialPage={1}
+                    totalPages={response.data.total_pages}
+                    query={query}
+                />
             ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                     <p className="text-lg">No results found.</p>

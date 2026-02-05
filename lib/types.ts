@@ -83,6 +83,7 @@ export interface SearchResponse {
         page: number;
         total_pages: number;
         anime: AnimeItem[];
+        query?: string;
     };
 }
 
